@@ -1,11 +1,53 @@
-import React from 'react'
-import {Button, Card, Form, Input, Select,Switch} from 'antd'
+import React, { useState } from 'react'
+import {Button, Card, Form, Input, InputNumber, Select,Switch, Tooltip} from 'antd'
 import SmallCard from './components/smallComponents/SmallCard'
-import { Copy, Download } from "lucide-react";
+import { AlignRight, Copy, Download, DownloadCloud } from "lucide-react";
 import FormItem from 'antd/es/form/FormItem';
+import {faker} from '@faker-js/faker';
+import {nanoid} from 'nanoid';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
 
 
 function App() {
+
+  const [payload, setPayload] = useState('');
+  const [inputDetails, setInputDetails] = useState('');
+
+
+  const onCopy = () =>{
+    alert("hell")
+  }
+  const generateData = (values) =>{
+    const Temp = [];
+    for(let i=0; i<values.noOfData; i++){
+      if(values.data === "users"){
+        Temp.push(generateUserData());
+      }
+    }
+    setInputDetails(values.data)
+    const str = JSON.stringify(Temp, null, 5);
+    setPayload(str);
+    console.log(Temp);
+  }
+
+  //generating the data
+  const generateUserData = () => {
+    let name = faker.person.firstName();
+    let lastName = faker.person.lastName();
+    return{
+      id:nanoid(),
+      fullName: name +" "+ lastName,
+      address: faker.location.streetAddress({ useFullAddress: true }),
+      email:faker.internet.email({ firstName: name, lastName: lastName, provider: 'gmail.com' }), // 'Jeanne_Doe88@example.fakerjs.dev',
+      mobile:faker.phone.number({ style: 'international' }),
+      // gender:"",
+      // bio:"",
+    }
+  }
+
+  
+
   return (
     <>
       <div className='bg-gray-200 w-screen h-screen'>
@@ -16,7 +58,7 @@ function App() {
             <Card>
               <div className='h-[140px] flex justify-between gap-5'>
                 <div className='w-6/12 h-full flex flex-col justify-center'>
-                  <h1 className='text-4xl font-medium mb-4 tracking-wider'>Fake Data Generator</h1>
+                  <h1 className='text-4xl font-medium mb-4 tracking-wider'>Dummy Data Generator</h1>
                   <p className='text-lg text-neutral-400'>Generate up to 100 realistic JSON record for development, seeding databases, or API testing-with MongoDB-ready ObjectID and data support.</p>
                 </div>
                 <div className='w-6/12 flex justify-end items-end'>
@@ -32,26 +74,38 @@ function App() {
         <div className='bg-slate-400 h-screen flex'>
           {/* left  */}
           <div className=' w-[30%] p-4 flex justify-center items-start py-10'>
-           <Card className='shadow-md!' style={{padding:"10px"}} >
-              <div className='flex flex-col gap-1'>
-                <label htmlFor="dataType" className='font-medium'>Data Type</label>
-                <Select
-                  id="dataType"
-                  placeholder="Select Data Type"
+            <Card className='shadow-md!' style={{padding:"10px", width:"90%", marginLeft:"40px"}} >
+           <Form className='flex flex-col' layout='vertical' onFinish={generateData} initialValues={{data:"users", noOfData:4}}>
+
+            <FormItem
+              label="Choose Data"
+              name="data"
+              rules={[{required:true}]}
+              className='w-full!'
+              > 
+              <Select
+                  placeholder="Choose data"
                 >
+                  <Select.Option value="users">Users</Select.Option>
                   <Select.Option value="vehicle">Vehicle</Select.Option>
                   <Select.Option value="people">People</Select.Option>
                   <Select.Option value="cars">Cars</Select.Option>
                 </Select>
-                <label className='mt-5 font-medium'>Number of items (max 100)</label>
-                <Input type="number" required/>
-                <label className='text-neutral-500'>Set how many items to generate (1-100)</label>
-                
-                <label className='text-neutral-400 mt-5'>Quick sample size</label>
-                <Input type={"range"} min={1} max={100}/>
-                <Button size='large' className='bg-indigo-400! text-white! mt-5 hover:text-white! hover:bg-indigo-500 shadow-sm'>Generate</Button>
-              </div>
-            </Card>
+            </FormItem>
+
+            <FormItem
+              label="Number of Data"
+              name="noOfData"
+              rules={[{required:true}]}
+              className='w-full!'
+              > 
+              <InputNumber max={100} size='large' placeholder='Enter number of data' className='w-full! bg-red-400'/>
+            </FormItem>
+
+            <Button htmlType='submit' size='large' className='bg-indigo-400! text-white! mt-5 hover:text-white! hover:bg-indigo-500 shadow-sm'>Generate</Button>
+
+           </Form>
+           </Card>
           </div>
 
 
@@ -75,7 +129,6 @@ function App() {
                         <h1>MongoDB JSON</h1>
                         <Switch />
                       </section>
-                      <Button className='bg-slate-400! text-white!'><Copy className="w-4 h-4 cursor-pointer hover:text-blue-500" />Copy</Button>
                       <Button className='bg-slate-400! text-white!'><Download className="w-4 h-4 cursor-pointer hover:text-green-500" />Download</Button>
 
                       
@@ -85,16 +138,19 @@ function App() {
                   </div>
                 </div>
                 {/* buttom div  */}
-                <div className='bg-gray-50 h-[90%] mt-5 p-2 border border-green-400/30 backdrop-blur-sm rounded-md shadow'>
-                  <pre>
-                    1<br/>
-                    2<br/>
-                    3<br/>
-                    4<br/>
-                    5<br/>
-                    6
-                  </pre>
-                </div>
+                
+                  <Card title={inputDetails} extra={
+                    <Tooltip >
+                      <Copy onClick={onCopy}/>
+                    </Tooltip> 
+                  }
+                  className='mt-6! h-[90%]! bg-slate-300! '
+                  >
+                     <SyntaxHighlighter language="javascript" style={docco} className="h-[62vh] rounded-md bg-slate-300!">
+                      {payload}
+                    </SyntaxHighlighter>
+                  </Card>
+                
 
               </div>
             </Card>
