@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {Button, Card, Form, Input, InputNumber, Select,Switch, Tooltip} from 'antd'
+import {Button, Card, Empty, Form, Input, InputNumber, message, Select,Switch, Tooltip} from 'antd'
 import SmallCard from './components/smallComponents/SmallCard'
 import { AlignRight, Copy, Download, DownloadCloud } from "lucide-react";
 import FormItem from 'antd/es/form/FormItem';
@@ -16,22 +16,32 @@ function App() {
 
 
   const onCopy = () =>{
-    alert("hell")
+    navigator.clipboard.writeText(payload);
+    message.success("Data copied !!")
   }
   const generateData = (values) =>{
-    const Temp = [];
+    const Temp = [];  // holding data of object 
     for(let i=0; i<values.noOfData; i++){
-      if(values.data === "users"){
+      //for person
+      if(values.data === "Users"){
         Temp.push(generateUserData());
       }
+      // for Product
+      if(values.data === "Product"){
+        Temp.push(generateProductData());
+      }
+      // for Payment
+      if(values.data === "Payment"){
+        Temp.push(generatePaymentData());
+      }
     }
-    setInputDetails(values.data)
-    const str = JSON.stringify(Temp, null, 5);
-    setPayload(str);
+    setInputDetails(values.data) //set which category
+    const str = JSON.stringify(Temp, null, 5); // converting data in string
+    setPayload(str); //set payload
     console.log(Temp);
   }
 
-  //generating the data
+  //generating userData
   const generateUserData = () => {
     let name = faker.person.firstName();
     let lastName = faker.person.lastName();
@@ -41,20 +51,66 @@ function App() {
       address: faker.location.streetAddress({ useFullAddress: true }),
       email:faker.internet.email({ firstName: name, lastName: lastName, provider: 'gmail.com' }), // 'Jeanne_Doe88@example.fakerjs.dev',
       mobile:faker.phone.number({ style: 'international' }),
+      createAt: faker.date.anytime(),
       // gender:"",
       // bio:"",
     }
   }
 
+  //generating Product data
+  const generateProductData = () => {
+    
+    return{
+      id:nanoid(),
+      title: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      price: Number(faker.commerce.price({min:1000, max:5000})),
+      discount: Number(faker.commerce.price({min:0, max: 50})),
+      rating: Number(faker.commerce.price({min:1, max:5})),
+      category: faker.commerce.productAdjective(),
+      brand: faker.company.buzzNoun(),
+      image: faker.image.urlLoremFlickr({category:'product'}),
+      createAt: faker.date.anytime(),
+    }
+  }
+
+
+  //generating Vehicle data
+  const generatePaymentData = () => {
+    
+    let name = faker.person.firstName();
+    let lastName = faker.person.lastName();
+
+    return{
+      id:nanoid(),
+      user:{
+        id:nanoid(),
+        fullName: faker.person.fullName(),
+        email:faker.internet.email({ firstName: name, lastName: lastName, provider: 'gmail.com' }), // 'Jeanne_Doe88@example.fakerjs.dev',
+      },
+      Product:{
+        id:nanoid(),
+        title: faker.commerce.productName()
+      },
+      amount: Number(faker.commerce.price({min:1000, max:5000})),
+      orderID: `TSC-${nanoid()}`,
+      method: "ESWA",
+      tax: Number(faker.commerce.price({min:0, max:50})),
+      createAt: faker.date.anytime(),
+    }
+  }
+
+  /// ... so on ...
+
   
 
   return (
     <>
-      <div className='bg-gray-200 w-screen h-screen'>
+      <div className=' bg-slate-400 w-screen h-screen '>
 
         {/* top div */}
-        <div className='bg-slate-400 h-[30%] p-5'>
-          <div className='px-10 pt-2'>
+        <div className=' h-[30vh] flex items-end justify-center'>
+          <div className=' pt-2 px-15 w-full'>
             <Card>
               <div className='h-[140px] flex justify-between gap-5'>
                 <div className='w-6/12 h-full flex flex-col justify-center'>
@@ -73,9 +129,9 @@ function App() {
         {/* buttom div */}
         <div className='bg-slate-400 h-screen flex'>
           {/* left  */}
-          <div className=' w-[30%] p-4 flex justify-center items-start py-10'>
+          <div className=' w-[30%] p-4 flex justify-center items-start py-5'>
             <Card className='shadow-md!' style={{padding:"10px", width:"90%", marginLeft:"40px"}} >
-           <Form className='flex flex-col' layout='vertical' onFinish={generateData} initialValues={{data:"users", noOfData:4}}>
+           <Form className='flex flex-col' layout='vertical' onFinish={generateData} initialValues={{data:"Users", noOfData:4}}>
 
             <FormItem
               label="Choose Data"
@@ -86,10 +142,11 @@ function App() {
               <Select
                   placeholder="Choose data"
                 >
-                  <Select.Option value="users">Users</Select.Option>
-                  <Select.Option value="vehicle">Vehicle</Select.Option>
-                  <Select.Option value="people">People</Select.Option>
-                  <Select.Option value="cars">Cars</Select.Option>
+                  <Select.Option value="Users">Users</Select.Option>
+                  <Select.Option value="Product">Product</Select.Option>
+                  <Select.Option value="Payment">Payment</Select.Option>
+
+                  
                 </Select>
             </FormItem>
 
@@ -111,7 +168,7 @@ function App() {
 
 
           {/* right  */}
-          <div className=' w-[70%] pr-15 py-10'>
+          <div className=' w-[70%] pr-15 py-5'>
             <Card className='shadow-md!'>
               <div className='w-full h-[85vh]'>
                 {/* top div  */}
@@ -119,8 +176,8 @@ function App() {
                   <div className='flex justify-between'>
 
                     {/* left div  */}
-                    <div className='w-6/12'>
-                    <h1 className='text-lg font-medium '>Payload Preview</h1>
+                    <div className='w-6/12 flex justify-start items-center text-indigo-500'>
+                    <h1 className='text-2xl font-medium '>Payload Preview</h1>
                     </div>
                     
                     {/* right div  */}
@@ -130,25 +187,31 @@ function App() {
                         <Switch />
                       </section>
                       <Button className='bg-slate-400! text-white!'><Download className="w-4 h-4 cursor-pointer hover:text-green-500" />Download</Button>
-
-                      
   
-                      
                     </div>
                   </div>
                 </div>
                 {/* buttom div  */}
                 
                   <Card title={inputDetails} extra={
-                    <Tooltip >
-                      <Copy onClick={onCopy}/>
+                    <Tooltip title="Copy data">
+                      <Copy onClick={onCopy} />
                     </Tooltip> 
                   }
-                  className='mt-6! h-[90%]! bg-slate-300! '
+                  className='mt-8! h-[88%]! bg-slate-300! '
                   >
-                     <SyntaxHighlighter language="javascript" style={docco} className="h-[62vh] rounded-md bg-slate-300!">
-                      {payload}
-                    </SyntaxHighlighter>
+                     {
+                      payload.length === 0 ?
+                      <Empty 
+                        image={Empty.PRESENTED_IMAGE_DEFAULT}
+                        imageStyle={{ height: 250 }}   // Increase height
+                        description="Click Generate button to get your first payload."
+                      />
+                      : 
+                      <SyntaxHighlighter language="c" style={docco} className="h-[62vh] rounded-md bg-slate-300!" showLineNumbers>
+                        {payload}
+                      </SyntaxHighlighter>
+                     }
                   </Card>
                 
 
