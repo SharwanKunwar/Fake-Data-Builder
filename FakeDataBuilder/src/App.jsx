@@ -13,6 +13,8 @@ function App() {
 
   const [payload, setPayload] = useState('');
   const [inputDetails, setInputDetails] = useState('');
+  const payloadRef = React.useRef(null);
+
 
 
   const onCopy = () =>{
@@ -39,6 +41,11 @@ function App() {
     const str = JSON.stringify(Temp, null, 5); // converting data in string
     setPayload(str); //set payload
     console.log(Temp);
+
+     // 🔥 scroll to viewer
+    setTimeout(() => {
+      payloadRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   }
 
   //generating userData
@@ -111,17 +118,19 @@ function App() {
         {/* top div */}
         <div className=' h-[30vh] flex items-end justify-center'>
           <div className=' pt-2 px-15 w-full'>
+            
             <Card>
               <div className='h-[140px] flex justify-between gap-5'>
                 <div className='w-6/12 h-full flex flex-col justify-center'>
-                  <h1 className='text-4xl font-medium mb-4 tracking-wider'>Dummy Data Generator</h1>
+                  <h1 className='text-4xl font-medium mb-2 tracking-wider'>Dummy Data Generator</h1>
                   <p className='text-lg text-neutral-400'>Generate up to 100 realistic JSON record for development, seeding databases, or API testing-with MongoDB-ready ObjectID and data support.</p>
                 </div>
                 <div className='w-6/12 flex justify-end items-end'>
                   <SmallCard/>
                 </div>
               </div>
-            </Card>
+            </Card>  
+
           </div>
         </div>
 
@@ -129,7 +138,7 @@ function App() {
         {/* buttom div */}
         <div className='bg-slate-400 h-screen flex'>
           {/* left  */}
-          <div className=' w-[30%] p-4 flex justify-center items-start py-5'>
+          <div className=' w-[30%] p-4 flex flex-col gap-5 justify-start items-center py-5'>
             <Card className='shadow-md!' style={{padding:"10px", width:"90%", marginLeft:"40px"}} >
            <Form className='flex flex-col' layout='vertical' onFinish={generateData} initialValues={{data:"Users", noOfData:4}}>
 
@@ -140,8 +149,9 @@ function App() {
               className='w-full!'
               > 
               <Select
-                  placeholder="Choose data"
-                >
+                placeholder="Choose data"
+                size='large'
+              >
                   <Select.Option value="Users">Users</Select.Option>
                   <Select.Option value="Product">Product</Select.Option>
                   <Select.Option value="Payment">Payment</Select.Option>
@@ -161,6 +171,14 @@ function App() {
 
             <Button htmlType='submit' size='large' className='bg-indigo-400! text-white! mt-5 hover:text-white! hover:bg-indigo-500 shadow-sm'>Generate</Button>
 
+           </Form>
+           </Card>
+
+          {/* //second card  */}
+           <Card className='shadow-md!' style={{padding:"10px", width:"90%", marginLeft:"40px"}} >
+           <Form className='flex flex-col' layout='vertical' onFinish={generateData} initialValues={{data:"Users", noOfData:4}}>
+              {/* other content here */}
+              comming soon!!
            </Form>
            </Card>
           </div>
@@ -193,7 +211,7 @@ function App() {
                 </div>
                 {/* buttom div  */}
                 
-                  <Card title={inputDetails} extra={
+                  <Card ref={payloadRef} title={inputDetails} extra={
                     <Tooltip title="Copy data">
                       <Copy onClick={onCopy} />
                     </Tooltip> 
